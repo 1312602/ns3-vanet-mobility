@@ -46,6 +46,9 @@ namespace ns3
     m_length = 0;
     m_width = 0;
 	IsEquipped=true;
+	is_alive=true;
+	is_rsu=false;
+	is_silent=false;
   }
 
   Vehicle::~Vehicle()
@@ -59,25 +62,25 @@ namespace ns3
 	NodeContainer n(m_node);
     d = wifi.Install(phy, mac, n);
     
-    std::ostringstream oss;
+//    std::ostringstream oss;
 
-    oss << "/NodeList/" << m_node->GetId()<< "/DeviceList/0/Mac/MacTx";
-    Config::Connect (oss.str(), MakeCallback (&Vehicle::DevTxTrace, this));
-    oss.str("");
-    oss << "/NodeList/" << m_node->GetId()<< "/DeviceList/0/Mac/MacRx";
-    Config::Connect (oss.str(), MakeCallback (&Vehicle::DevRxTrace, this));
-    oss.str("");
-    oss << "/NodeList/" << m_node->GetId()<< "/DeviceList/0/Phy/State/RxOk";
-    Config::Connect (oss.str(), MakeCallback (&Vehicle::PhyRxOkTrace, this));
-    oss.str("");
-    oss << "/NodeList/" << m_node->GetId()<< "/DeviceList/0/Phy/State/RxError";
-    Config::Connect (oss.str(), MakeCallback (&Vehicle::PhyRxErrorTrace, this));
-    oss.str("");
-    oss << "/NodeList/" << m_node->GetId()<< "/DeviceList/0/Phy/State/Tx";
-    Config::Connect (oss.str(), MakeCallback (&Vehicle::PhyTxTrace, this));
-    oss.str("");
-    oss << "/NodeList/" << m_node->GetId()<< "/DeviceList/0/Phy/State/State";
-    Config::Connect (oss.str(), MakeCallback (&Vehicle::PhyStateTrace, this));
+//    oss << "/NodeList/" << m_node->GetId()<< "/DeviceList/0/Mac/MacTx";
+//    Config::Connect (oss.str(), MakeCallback (&Vehicle::DevTxTrace, this));
+//    oss.str("");
+//    oss << "/NodeList/" << m_node->GetId()<< "/DeviceList/0/Mac/MacRx";
+//    Config::Connect (oss.str(), MakeCallback (&Vehicle::DevRxTrace, this));
+//    oss.str("");
+//    oss << "/NodeList/" << m_node->GetId()<< "/DeviceList/0/Phy/State/RxOk";
+//    Config::Connect (oss.str(), MakeCallback (&Vehicle::PhyRxOkTrace, this));
+//    oss.str("");
+//    oss << "/NodeList/" << m_node->GetId()<< "/DeviceList/0/Phy/State/RxError";
+//    Config::Connect (oss.str(), MakeCallback (&Vehicle::PhyRxErrorTrace, this));
+//    oss.str("");
+//    oss << "/NodeList/" << m_node->GetId()<< "/DeviceList/0/Phy/State/Tx";
+//    Config::Connect (oss.str(), MakeCallback (&Vehicle::PhyTxTrace, this));
+//    oss.str("");
+//    oss << "/NodeList/" << m_node->GetId()<< "/DeviceList/0/Phy/State/State";
+//    Config::Connect (oss.str(), MakeCallback (&Vehicle::PhyStateTrace, this));
 
     m_device = d.Get(0);
     m_device->SetReceiveCallback(MakeCallback(&Vehicle::ReceivePacket, this));
@@ -91,6 +94,11 @@ namespace ns3
   int Vehicle::GetDirection()
   {
     return m_direction;
+  }
+
+  char Vehicle::GetCharDirection()
+  {
+	return m_direction==1 ? 'W' : 'E';
   }
 
   int Vehicle::GetVehicleId()
@@ -283,6 +291,46 @@ namespace ns3
   Address Vehicle::GetBroadcastAddress()
   {
     return m_device->GetBroadcast();
+  }
+
+  void Vehicle::SetAlive(bool status)
+  {
+	is_alive = status;
+  }
+
+  bool Vehicle::IsAlive()
+  {
+    return is_alive;
+  }
+
+  list<unsigned int> Vehicle::GetPacketList()
+  {
+    return p_buffer;
+  }
+
+  void Vehicle::AddPacket(unsigned int pID)
+  {
+    p_buffer.push_back(pID);
+  }
+
+  void Vehicle::SetSilence(bool silent)
+  {
+    is_silent=silent;
+  }
+
+  bool Vehicle::GetSilence(void)
+  {
+    return is_silent;
+  }
+
+  void Vehicle::SetRSU(bool rsu)
+  {
+    is_rsu=rsu;
+  }
+
+  bool Vehicle::GetRSU(void)
+  {
+    return is_rsu;
   }
 
   bool Vehicle::SendTo(Address address, Ptr<Packet> packet)

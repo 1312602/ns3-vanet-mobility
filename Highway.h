@@ -320,6 +320,14 @@ namespace ns3
 	  * \param random variable from desirable distribution
 	  */
 	  void SetFlowRVNegativeDirection(RandomVariable rv);
+      /**
+	  * \returns random variable from desirable distribution
+	  */
+	  RandomVariable GetFlowRVPositiveDirection(void);
+	  /**
+	  * \returns random variable from desirable distribution
+	  */
+	  RandomVariable GetFlowRVNegativeDirection(void);
 	  /**
 	  * \param random variable from desirable distribution
 	  */
@@ -332,6 +340,10 @@ namespace ns3
       * \returns the last (currently) value of auto-incremented Vehicle Id.
       */
       int GetLastVehicleId();
+      /**
+      * \param the Vehicle Id value to set.
+      */
+      void SetGlobalVehicleId(int value);
 	  /**
 	  * \returns the WifiHelper used by the highway.
 	  */

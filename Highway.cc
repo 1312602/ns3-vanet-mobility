@@ -410,7 +410,7 @@ namespace ns3
   {
     for (int i = 0; i < m_numberOfLanes; i++)
       {
-        for (uint j = 0; j < vehicles[i].size(); j++)
+        for (unsigned int j = 0; j < vehicles[i].size(); j++)
           {
             Ptr<Vehicle> veh=GetVehicle(vehicles[i],j);
             bool controled=false;
@@ -434,7 +434,7 @@ namespace ns3
     std::list<Ptr<Vehicle> > reachedEnd;
     for (int i = 0; i < m_numberOfLanes; i++)
       {
-        for (uint j = 0; j < vehicles[i].size(); j++)
+        for (unsigned int j = 0; j < vehicles[i].size(); j++)
           {
             Ptr<Vehicle> veh=GetVehicle(vehicles[i],j);
             veh->TranslatePosition(dt);
@@ -445,14 +445,16 @@ namespace ns3
 			  reachedEnd.push_back(veh);
           }
 
-        for(uint r=0; r<reachedEnd.size(); r++)
+        for(unsigned int r=0; r<reachedEnd.size(); r++)
           {
             Ptr<Vehicle> rm=GetVehicle(reachedEnd, r);
             vehicles[i].remove(rm);
             if(rm->IsEquipped==true) rm->GetReceiveCallback().Nullify();
             // to put vehicle's node far away from the highway
             // we cannot dispose the vehicle here because its node may still be involved in send and receive process
-            rm->SetPosition(Vector(10000, 10000, 10000)); 
+            rm->SetPosition(Vector(10000, 10000, 10000));
+            // mark as not alive
+            rm->SetAlive(false);
             rm=0;
           }
 
@@ -489,7 +491,7 @@ namespace ns3
 	std::list<Ptr<Vehicle> > canChange;
     canChange.clear();
     
-	for (uint j = 0; j < vehicles[curLane].size(); j++)
+	for (unsigned int j = 0; j < vehicles[curLane].size(); j++)
       {
         Ptr<Vehicle> fOld = 0;
         if (j > 0)
@@ -504,7 +506,7 @@ namespace ns3
           }               
       }
 
-    for (uint j = 0; j < canChange.size(); j++)
+    for (unsigned int j = 0; j < canChange.size(); j++)
       {
         Vector position=GetVehicle(canChange,j)->GetPosition();
         position.y=GetYForLane(desLane, GetVehicle(canChange,j)->GetDirection());
@@ -522,7 +524,7 @@ namespace ns3
     int front=-1, back=-1;
     m_tempVehicles[0] = 0;
 	m_tempVehicles[1] = 0;
-    for (uint i = 0; i < vehicles[sideLane].size(); i++)
+    for (unsigned int i = 0; i < vehicles[sideLane].size(); i++)
       {
         if(veh->GetDirection() == 1)
           {	
@@ -722,7 +724,7 @@ namespace ns3
   void Highway::PrintVehicles()
   {
     std::cout << "Lane 2----------------" << Simulator::Now()<< "--------" << std::endl;
-    for(uint i=0; i<m_vehicles[1].size();i++)
+    for(unsigned int i=0; i<m_vehicles[1].size();i++)
       {
         Ptr<Vehicle> v=GetVehicle(m_vehicles[1],i);
 		std::cout<< v->GetVehicleId() << ":" << v->GetPosition().x 
@@ -749,6 +751,16 @@ namespace ns3
   void Highway::SetFlowRVNegativeDirection(RandomVariable rv)
   {
 	  m_RVFlowDirNeg = rv;
+  }
+
+  RandomVariable Highway::GetFlowRVPositiveDirection(void)
+  {
+	  return m_RVFlowDirPos;
+  }
+
+  RandomVariable Highway::GetFlowRVNegativeDirection(void)
+  {
+	  return m_RVFlowDirNeg;
   }
 
   void Highway::SetSpeedRV(RandomVariable rv)
@@ -821,6 +833,11 @@ namespace ns3
     return m_vehicleId;
   }
 
+  void Highway::SetGlobalVehicleId(int value)
+  {
+    m_vehicleId=value;
+  }
+
   WifiHelper Highway::GetWifiHelper()
   {
     return m_wifiHelper;
@@ -865,7 +882,7 @@ namespace ns3
 
     for(int i=0;i<m_numberOfLanes;i++)
       {
-        for(uint j=0;j<m_vehicles[i].size();j++)
+        for(unsigned int j=0;j<m_vehicles[i].size();j++)
           {	
             v=GetVehicle(m_vehicles[i],j);
             if(v->GetVehicleId()==vid) 
@@ -876,7 +893,7 @@ namespace ns3
       {
         for(int i=0;i<m_numberOfLanes;i++)
           {
-            for(uint j=0;j<m_vehiclesOpp[i].size();j++)
+            for(unsigned int j=0;j<m_vehiclesOpp[i].size();j++)
               {	
                 v=GetVehicle(m_vehiclesOpp[i],j);
                 if(v->GetVehicleId()==vid) 
@@ -899,7 +916,7 @@ namespace ns3
     p=vehicle->GetPosition();
     for(int i=0;i<m_numberOfLanes;i++)
       {
-        for(uint j=0;j<m_vehicles[i].size();j++)
+        for(unsigned int j=0;j<m_vehicles[i].size();j++)
           {	
             v=GetVehicle(m_vehicles[i],j);
             pos=v->GetPosition();
@@ -914,7 +931,7 @@ namespace ns3
       {
         for(int i=0;i<m_numberOfLanes;i++)
         {
-          for(uint j=0;j<m_vehiclesOpp[i].size();j++)
+          for(unsigned int j=0;j<m_vehiclesOpp[i].size();j++)
             {	
               v=GetVehicle(m_vehiclesOpp[i],j);
               pos=v->GetPosition();
@@ -937,7 +954,7 @@ namespace ns3
     Vector pos;
     if(dir==1 && lane< 5 && lane>=0)
       {
-        for(uint j=0;j<m_vehicles[lane].size();j++)
+        for(unsigned int j=0;j<m_vehicles[lane].size();j++)
           {	
             v=GetVehicle(m_vehicles[lane],j);
             pos=v->GetPosition();
@@ -946,7 +963,7 @@ namespace ns3
       }
     else if(dir==-1 && m_twoDirectional==true && lane < 5 && lane >= 0)
       {
-        for(uint j=0;j<m_vehiclesOpp[lane].size();j++)
+        for(unsigned int j=0;j<m_vehiclesOpp[lane].size();j++)
           { 	
             v=GetVehicle(m_vehiclesOpp[lane],j);
             pos=v->GetPosition();

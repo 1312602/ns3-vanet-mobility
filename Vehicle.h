@@ -34,6 +34,7 @@
 #include "ns3/wifi-module.h"
 #include "Model.h"
 #include "LaneChange.h"
+#include <list>
 
 namespace ns3
 {
@@ -69,7 +70,10 @@ namespace ns3
   {
     private: 
     	
-      int m_lane;                   // vehicle's lane.
+	  bool is_alive;				// vehicle is active
+      bool is_rsu;					// vehicle is an RSU
+      bool is_silent;				// silent: no rebroadcast
+	  int m_lane;                   // vehicle's lane.
       double m_length;              // vehicle's length.
       double m_width;               // vehicle's width.
       double m_velocity;            // vehicle's velocity.
@@ -80,6 +84,7 @@ namespace ns3
       int m_vehicleId;              // vehicle's id
       Ptr<Node> m_node;             // vehicle has a node
       Ptr<NetDevice> m_device;      // vehicle has a device
+      list<unsigned int> p_buffer;	// packet storage
 
 	  /// Catching an event when a packet is received.
       VehicleReceiveCallback m_receive;
@@ -200,6 +205,10 @@ namespace ns3
       */
       int GetDirection();
       /**
+      * \returns the direction of the Vehicle in verbose 'W' (1) or 'E' (-1).
+      */
+      char GetCharDirection();
+      /**
       * \param value the direction of the Vehicle. Usually (+1) or (-1) used in the Highway. 
       */
       void SetDirection(int value);
@@ -249,10 +258,28 @@ namespace ns3
       */
       Address GetBroadcastAddress();
       /**
+      * \param the vehicle's desired status.
+      */
+      void SetAlive(bool status);
+      /**
+      * \returns the vehicle's status.
+	  *
+	  * A terminated vehicle should return false.
+      */
+      bool IsAlive();
+      /**
       * \param address the destination address. (Wifi address of the target Vehicle)
       * \param packet the packet to send.
       * \returns ture if the enqueuing/sending was successful, otherwise false.
       */
+
+      list<unsigned int> GetPacketList();
+      void AddPacket(unsigned int pID);
+      void SetSilence(bool silent);
+      bool GetSilence(void);
+      void SetRSU(bool rsu);
+      bool GetRSU(void);
+
       bool SendTo(Address address, Ptr<Packet> packet);
       /// is used for purpose of sorting vehicles based on their positions in a list or a queue.
       static bool Compare(Ptr<Vehicle> v1, Ptr<Vehicle> v2);
